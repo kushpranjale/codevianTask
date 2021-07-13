@@ -1,0 +1,86 @@
+<nav class="navbar navbar-light bg-light">
+  <input
+    type="file"
+    class="form-control"
+    (change)="addFile($event, content)"
+    placeholder="Upload file"
+    #fileInput
+    style="display: none"
+    accept="image/png, image/jpg, image/jpeg"
+  />
+  <a class="navbar-brand" href="#">Upload Image</a>
+  <span>
+    <button
+      class="btn btn-outline-success my-2 my-sm-0"
+      (click)="fileInput.click()"
+    >
+      Upload Image
+    </button>
+  </span>
+</nav>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Upload Image</h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <image-cropper
+      [imageChangedEvent]="imageChangedEvent"
+      [maintainAspectRatio]="true"
+      [aspectRatio]="4 / 3"
+      format="png"
+      (imageCropped)="imageCropped($event)"
+      (imageLoaded)="imageLoaded()"
+      (cropperReady)="cropperReady()"
+      (loadImageFailed)="loadImageFailed()"
+    ></image-cropper>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="addImage()">
+      Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #delete let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Delete Image</h4>
+    <button
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">Do You Want To Delete Image</div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="deleteBtn()">
+      Confirm
+    </button>
+  </div>
+</ng-template>
+<!-- <img [src]="croppedImage" /> -->
+<div class="row mt-5 ml-2">
+  <div
+    *ngFor="let image of album; let i = index"
+    class="col-md-3 container-img"
+  >
+    <button
+      class="btn btn-danger top-right"
+      (click)="confirmDialog(delete, image.id)"
+    >
+      <i class="fa fa-trash-o" aria-hidden="true"></i>
+    </button>
+    <img [src]="image.thumb" (click)="open(i)" />
+  </div>
+</div>
