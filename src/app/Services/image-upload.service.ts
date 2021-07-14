@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class ImageUploadService {
-  url = 'http://localhost:8080/api/addImage';
+  url = 'https://fringuante-vin-58071.herokuapp.com/api/addImage';
   updatedData = new Subject();
 
   constructor(private http: HttpClient) {}
@@ -20,14 +20,16 @@ export class ImageUploadService {
     });
   }
   getAllImage() {
-    return this.http.get('http://localhost:8080/api/getAllImage');
+    return this.http.get(
+      'https://fringuante-vin-58071.herokuapp.com/api/getAllImage'
+    );
   }
   deleteImage(id: string) {
     let data = {
       id: id,
     };
     this.http
-      .post('http://localhost:8080/api/deleteImage', data)
+      .post('https://fringuante-vin-58071.herokuapp.com/api/deleteImage', data)
       .subscribe((res) => {
         this.updatedData.next();
       });

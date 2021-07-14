@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { Lightbox } from 'ngx-lightbox';
+import { Ng2ImgMaxService } from 'ng2-img-max';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,11 +16,14 @@ export class DashboardComponent implements OnInit {
   newEvent: any;
   album: any = [];
   id: string;
+  uploadedImage: Blob;
+  lessCount: number = 0;
 
   constructor(
     private modalService: NgbModal,
     private imageService: ImageUploadService,
-    private _lightbox: Lightbox
+    private _lightbox: Lightbox,
+    private ng2ImgMax: Ng2ImgMaxService
   ) {}
 
   ngOnInit(): void {
@@ -47,48 +51,38 @@ export class DashboardComponent implements OnInit {
       });
     });
   }
-  addFile(event: any, content) {
-    this.imageChangedEvent = event;
-    this.modalService.open(content, { size: 'xl' });
-  }
-  imageCropped(event: ImageCroppedEvent) {
-    this.croppedImage = event.base64;
+  addFile(event: any) {
+    // this.modalService.open(content, { size: 'xl' });
+    var selectedFiles = event.target.files;
+    console.log(selectedFiles.length);
 
-    this.newEvent = event;
-  }
-  imageLoaded() {
-    // show cropper
-  }
-  cropperReady() {
-    // cropper ready
-  }
-  loadImageFailed() {
-    // show message
-  }
-  addImage() {
-    let fd = new FormData();
-    let fileToReturn = this.base64ToFile(
-      this.croppedImage,
-      this.imageChangedEvent.target.files[0].name
-    );
-    // var blob = this.dataURItoBlob(this.croppedImage);
+    for (let i = 0; selectedFiles.length > i; i++) {
+      const uploadData = new FormData();
 
-    // let image = <File>this.newEvent.target.files;
-    fd.append('image', fileToReturn);
-    this.imageService.addImage(fd);
-  }
-  base64ToFile(data, filename) {
-    const arr = data.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    let u8arr = new Uint8Array(n);
+      console.log(selectedFiles[i]['size']);
+      if (selectedFiles[i]['size'] <= 50000) {
+        this.lessCount++;
+        return;
+      }
+      if (selectedFiles[i]['size'] > 1000000) {
+        this.ng2ImgMax.compressImage(selectedFiles[i], 0.099).subscribe(
+          (result) => {
+            this.uploadedImage = new File([result], result.name);
+            var file = new File([this.uploadedImage], selectedFiles[i].name);
+            // this.getImagePreview(this.uploadedImage);
+            uploadData.append('image', file);
 
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
+            this.imageService.addImage(uploadData);
+          },
+          (error) => {
+            console.log('😢 Oh no!', error);
+          }
+        );
+      } else {
+        uploadData.append('image', selectedFiles[i]);
+        this.imageService.addImage(uploadData);
+      }
     }
-
-    return new File([u8arr], filename, { type: mime });
   }
   open(index: number): void {
     // open lightbox
