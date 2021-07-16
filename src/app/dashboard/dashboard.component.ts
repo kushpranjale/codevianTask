@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
   id: string;
   uploadedImage: Blob;
   lessCount: number = 0;
+  loadingStatus = false;
 
   constructor(
     private modalService: NgbModal,
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadingStatus = true;
     this.getData();
     this.imageService.listener().subscribe(() => {
       window.location.reload();
@@ -49,6 +51,7 @@ export class DashboardComponent implements OnInit {
 
         this.album.push(album);
       });
+      this.loadingStatus = false;
     });
   }
   addFile(event: any) {
